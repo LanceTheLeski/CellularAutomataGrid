@@ -6,68 +6,44 @@ namespace GridTesting
 {
     class Pixel
     {
-        public static Random rand = new Random();
-
         public const int AIR = 0;
         public const int SMOKE = 1;
 
-        public const int WATER = 5;
-        public const int ACID = 10;
+        public const int WATER = 2;
 
-        public const int SAND = 10;
-        public const int METAL = 11;
-        public const int CONCRETE = 12;
-        public const int WOOD = 13;
+        public const int SAND = 3;
+        public const int METAL = 4;
 
-        public const int EMBER_HOT = 20;
-        public const int EMBER_WARM = 21;
-
-        /*
-         * Updates the corresponding pixel and returns true only if the pixel moves or changes state. Otherwise if the pixel remains in the same spot then return false;
-         */
-        public static bool updatePixel (Block block, int i, int j)
+        public void updatePixel (Block block, int i, int j)
         {
-            switch (block.getThisPixel(i, j))
+            switch (0)//redo later
             {
                 case Pixel.AIR:
                     {
-                        return false;
+                        
+                        return;
                     }
-                case Pixel.SAND:
+                case Pixel.SMOKE:
                     {
-                        return Pixels.Sand.update(block, i, j);
+
+
+                        return;
                     }
                 case Pixel.WATER:
                     {
-                        return Pixels.Water.updateOld(block, i, j);
+
+                        return;
                     }
-                case Pixel.METAL:
+                case 3:
                     {
-                        return false;
+
+
+                        return;
                     }
             }
-            return false;
         }
 
-        public static bool isGas (int pixelID)
-        {
-            return (pixelID >= 0 && pixelID <= 4);
-        }
 
-        public static bool isLiquid(int pixelID)
-        {
-            return (pixelID >= 5 && pixelID <= 9);
-        }
-
-        public static bool isSolid(int pixelID)
-        {
-            return (pixelID >= 10 && pixelID <= 19);
-        }
-
-        public static bool isParticle (int pixelID)
-        {
-            return (pixelID >= 20 && pixelID <= 29);
-        }
     }
 
 

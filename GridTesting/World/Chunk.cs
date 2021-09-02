@@ -14,37 +14,37 @@ namespace GridTesting
         {
             Block nullBlock = new Block ();
 
-            int[,] nullGrid = new int[8, 8] { { 11, 11, 11, 11, 11, 11, 11, 11 } , //0,
-                                               { 11, 0, 0, 0, 0, 0, 0, 11 } , //1,
-                                               { 11, 0, 0, 0, 0, 0, 0, 11 } , //2,
-                                               { 11, 0, 0, 0, 0, 0, 0, 11 } , //3,
-                                               { 11, 0, 0, 0, 0, 0, 0, 11 } , //4,
-                                               { 11, 0, 0, 0, 0, 0, 0, 11 } , //5,
-                                               { 11, 0, 0, 0, 0, 0, 0, 11 } , //6,
-                                               { 11, 11, 11, 11, 11, 11, 11, 11 } };//7
+            int[,] nullGrid = new int[8, 8] { { 1, 1, 1, 1, 1, 1, 1, 1 } , //0,
+                                               { 1, 0, 0, 0, 0, 0, 0, 1 } , //1,
+                                               { 1, 0, 0, 0, 0, 0, 0, 1 } , //2,
+                                               { 1, 0, 0, 0, 0, 0, 0, 1 } , //3,
+                                               { 1, 0, 0, 0, 0, 0, 0, 1 } , //4,
+                                               { 1, 0, 0, 0, 0, 0, 0, 1 } , //5,
+                                               { 1, 0, 0, 0, 0, 0, 0, 1 } , //6,
+                                               { 1, 1, 1, 1, 1, 1, 1, 1 } };//7
             
             nullBlock = new Block(nullGrid);
             Block[] suppBlocks = new Block[8];
             for (int i = 0; i < suppBlocks.Length; i++) suppBlocks[i] = nullBlock;
             nullBlock.setBlocks(suppBlocks);
 
-            int [,] pattern1 = new int[8, 8] { { 11, 5, 5, 10, 10, 5, 5, 5 } , //0,
-                                               { 0, 11, 5, 10, 5, 5, 5, 0 } , //1,
-                                               { 0, 0, 11, 5, 10, 0, 5, 0 } , //2,
-                                               { 5, 0, 11, 11, 5, 0, 5, 5 } , //3,
-                                               { 5, 0, 0, 11, 11, 5, 5, 5 } , //4,
-                                               { 5, 10, 0, 11, 11, 11, 0, 5 } , //5,
-                                               { 5, 5, 0, 10, 0, 0, 11, 0 } , //6,
-                                               { 5, 5, 10, 10, 0, 0, 0, 11 } };//7
+            int [,] pattern1 = new int[8, 8] { { 1, 3, 3, 2, 2, 3, 3, 3 } , //0,
+                                               { 0, 1, 3, 2, 3, 3, 3, 0 } , //1,
+                                               { 0, 0, 1, 3, 2, 0, 3, 0 } , //2,
+                                               { 3, 0, 1, 1, 3, 0, 3, 3 } , //3,
+                                               { 3, 0, 0, 1, 1, 3, 3, 3 } , //4,
+                                               { 3, 2, 0, 1, 1, 1, 0, 3 } , //5,
+                                               { 3, 3, 0, 2, 0, 0, 1, 0 } , //6,
+                                               { 1, 1, 2, 2, 0, 0, 0, 1 } };//7
 
-            int [,] pattern2 = new int[8, 8] { { 5, 5, 5, 5, 5, 0, 5, 5 } , //0,
-                                               { 0, 5, 0, 5, 5, 5, 5, 0 } , //1,
-                                               { 0, 0, 5, 0, 10, 0, 0, 0 } , //2,
-                                               { 10, 10, 5, 5, 0, 0, 0, 5 } , //3,
-                                               { 0, 0, 10, 5, 5, 0, 0, 5 } , //4,
-                                               { 0, 10, 10, 5, 5, 5, 0, 5 } , //5,
-                                               { 10, 0, 10, 10, 5, 0, 5, 0 } , //6,
-                                               { 0, 0, 10, 10, 0, 5, 0, 5 } };//7
+            int [,] pattern2 = new int[8, 8] { { 3, 3, 3, 3, 3, 0, 3, 3 } , //0,
+                                               { 0, 3, 0, 3, 3, 3, 3, 0 } , //1,
+                                               { 0, 0, 3, 0, 2, 0, 0, 0 } , //2,
+                                               { 2, 2, 3, 3, 0, 0, 0, 3 } , //3,
+                                               { 0, 0, 2, 3, 3, 0, 0, 3 } , //4,
+                                               { 0, 2, 2, 3, 3, 3, 0, 3 } , //5,
+                                               { 2, 0, 2, 2, 3, 0, 3, 0 } , //6,
+                                               { 0, 0, 2, 2, 0, 3, 0, 3 } };//7
 
             blocks = new Block [16, 16];
 
@@ -274,9 +274,6 @@ namespace GridTesting
                 //cornerBL = blocks[6];
                 //cornerBR = blocks[7];
 
-                highlighted = false;
-                altHighlighted = false;
-                blockSpace = 40;
                 updateLeft = true;
             }
 
@@ -290,7 +287,7 @@ namespace GridTesting
                 {
                     for (int i = 15; i >= 0; i--)
                     {
-                        if (blocks[i, j].isActive()) blocks[i, j].update();
+                        /*if (blocks[i, j].isActive())*/ blocks[i, j].update();
                     }
                 }
             else
@@ -298,11 +295,12 @@ namespace GridTesting
                 {
                     for (int i = 15; i >= 0; i--)
                     {
-                        if (blocks[i, j].isActive()) blocks[i, j].update();
+                        /*if (blocks[i, j].isActive())*/
+                        blocks[i, j].update();
                     }
                 }
 
-            updateLeft = !updateLeft;
+            //updateLeft = !updateLeft;
         }
         public void Draw (SpriteBatch _spriteBatch)
         {
@@ -314,52 +312,17 @@ namespace GridTesting
                 for (int j = 0; j < 16; j++)
                 {
                     blocks[i, j].Draw(x, y, 0, 0, 8, 8, _spriteBatch);
-                    x += blockSpace;
+                    x += 40;
                 }
-                y += blockSpace;
+                y += 40;
             }
             _spriteBatch.End();
 
         }
 
-        public bool highlighted;
-        public bool altHighlighted;
-        public int blockSpace;
-
         public void highlight (int x, int y, int iDist, int jDist)
         {
-            blocks[y / blockSpace + iDist, x / blockSpace + jDist].marked = !blocks[y / blockSpace + iDist, x / blockSpace + jDist].marked;
-        }
-
-        public void highlight ()
-        {
-            for (int i = 0; i < 16; i++)
-            {
-                for (int j = 0; j < 16; j++)
-                {
-                    blocks[i, j].marked = !blocks[i, j].marked;
-                }
-            }
-            highlighted = !highlighted;
-        }
-
-        public void altHighlight()
-        {
-            for (int i = 0; i < 16; i++)
-            {
-                for (int j = 0; j < 16; j++)
-                {
-                    blocks[i, j].altMarked = !blocks[i, j].altMarked;
-                }
-            }
-            altHighlighted = !altHighlighted;
-        }
-
-        public void forceMove (int x, int y)
-        {
-            Block block = blocks[y / blockSpace, x / blockSpace];
-            //Pixel.updatePixel(block, y / 80, x / 80);
-            Pixel.updatePixel(block, (y / 5) % (blockSpace / 5), (x / 5) % (blockSpace / 5));
+            blocks[y / 45 + iDist, x / 45 + jDist].marked = !blocks[y / 45 + iDist, x / 45 + jDist].marked;
         }
     }
 }

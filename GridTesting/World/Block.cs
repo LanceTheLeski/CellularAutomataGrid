@@ -9,8 +9,7 @@ namespace GridTesting
     class Block
     {
         //Pixels.Sand sand = new Pixels.Sand();//For testing. Remove soon.
-        
-        //Random rand = new Random();
+        Random rand = new Random();
 
         int[,] grid;
         int[,] data;
@@ -70,14 +69,10 @@ namespace GridTesting
                                                                                                     //i:  0,     1,     2,     3,     4,     5,     6,     7
 
             hasEvent = false;
-            startEvent = new Point(0, 7);
-            endEvent = new Point(7, 0);
-            startN = new Point(7, 0);
-            endN = new Point(0, 7);
+            startEvent = new Vector2(0, 7);
+            endEvent = new Vector2(7, 0);
 
             marked = false;//remove later
-            altMarked = false;
-            markers = new List<Point>();
         }
 
         public Block(int[,] grid /*, int[,] data*/) //!!Different argument(s)..?
@@ -99,6 +94,8 @@ namespace GridTesting
                 }
             }
 
+            //this.grid = grid;
+            //this.data = data;
             data = new int[8, 8] { { 0, 0, 0, 0, 0, 0, 0, 0 } , //0,.
                                    { 0, 0, 0, 0, 0, 0, 0, 0 } , //1,
                                    { 0, 0, 0, 0, 0, 0, 0, 0 } , //2,
@@ -119,14 +116,10 @@ namespace GridTesting
                                        { false, false, false, false, false, false, false, false } };//7
 
             hasEvent = true;
-            startEvent = new Point(0, 7);
-            endEvent = new Point(7, 0);
-            startN = new Point(7, 0);
-            endN = new Point(0, 7);
+            startEvent = new Vector2(0, 7);
+            endEvent = new Vector2(7, 0);
 
             marked = false;//remove later
-            altMarked = false;
-            markers = new List<Point>();
         }
 
         public void setBlocks (Block [] blocks)
@@ -160,64 +153,52 @@ namespace GridTesting
         * This method strictly updates a pixel at the given (i, j) coordinate. It does not 
         * check to see if that pixel was updated already however.
         */
-
-        bool hasEvent;
-        Point startEvent, endEvent;
-        Point startN, endN;
         public void update()
         {
-            markers = new List<Point>();
+            Vector2 startO = startEvent, endO = endEvent;
+            Vector2 startN = new Vector2 (8, -1), endN = new Vector2 (-1, 8);
 
-            startEvent.i = Math.Max(startEvent.i, startN.i);
-            startEvent.j = Math.Min(startEvent.j, startN.j);
-            endEvent.i = Math.Min(endEvent.i, endN.i);
-            endEvent.j = Math.Max(endEvent.j, endN.j);
-
-            Point startO = startEvent, endO = endEvent;
-            
-            startEvent = new Point(0, 7);
-            endEvent = new Point(7, 0);
-            bool updating = false;
-
-            for (int i = startO.i; i >= endO.i; i--)
+            for (int i = (int) startO.Y; i >= endO.Y; i--)
             {
 
-                for (int j = startO.j; j <= endO.j; j++)
+                for (int j = (int)startO.X; j <= endO.X; j++)
                 {
-                    if (this.updated[i, j] == true)
+                    if (updated[i, j] == true)
                     {
-                        updating = true;
-                        this.updated[i, j] = false;
+                        if (startO.Y == startEvent.Y && i > startN.Y)
+                            startN.Y = i;
+                        if (endO.X == endEvent.Y && i < endN.Y)
+                            endN.Y = i;
+
+                        if (startO.X == startEvent.X && j < startN.X)
+                            startN.X = j;
+                        if (endO.X == endEvent.X && j > endN.X)
+                            endN.X = j;
+
+                        updated[i, j] = false;
                     }
-                    else if (Pixel.updatePixel(this, i, j) == true) updating = true;
+                    else
+                        updatePixel(i, j);
                 }
             }
+            
+            if (startO.X != startEvent.X)
+                startN.X = startEvent.X;
+            if (startO.Y != startEvent.Y)
+                startN.Y = startEvent.Y;
+            if (endO.X != endEvent.X)
+                endN.X = endEvent.X;
+            if (endO.Y != endEvent.Y)
+                endN.Y = endEvent.Y;
 
-            if (updating == false) hasEvent = false;
-
-            startN = startEvent;
-            endN = endEvent;
-
-            updated = new bool[8, 8] { { false, false, false, false, false, false, false, false } , //0,
-                                       { false, false, false, false, false, false, false, false } , //1,
-                                       { false, false, false, false, false, false, false, false } , //2,
-                                       { false, false, false, false, false, false, false, false } , //3,
-                                       { false, false, false, false, false, false, false, false } , //4,
-                                       { false, false, false, false, false, false, false, false } , //5,
-                                       { false, false, false, false, false, false, false, false } , //6,
-                                       { false, false, false, false, false, false, false, false } };//7
-
-            //startEvent = new Point(0, 7);
-            //endEvent = new Point(7, 0);
-
-            //if (startN.j == 8 && startN.i == -1 && endN.j == -1 && endN.i == 8)
+            if (startN.X == 8 && startN.Y == -1 && endN.X == -1 && endN.Y == 8)
             {
-                //hasEvent = false;
-                //return;
+                hasEvent = false;
+                return;
             }
-            /*else if (startN.j == 8 || startN.i == -1) //Probably don't need
+            /*else if (startN.X == 8 || startN.Y == -1) //Probably don't need
                 startN = startEvent;
-            else if (endN.j == -1 || endN.i == 8)
+            else if (endN.X == -1 || endN.Y == 8)
                 endN = endEvent;*/
 
             //startEvent = startN;
@@ -226,69 +207,69 @@ namespace GridTesting
             //Probably remove..
             {
             /*
-            bool c1 = startO.j != startEvent.j;
-            bool c2 = startO.i != startEvent.i;
-            bool c3 = endO.j != endEvent.j;
-            bool c4 = endO.i != endEvent.i;
+            bool c1 = startO.X != startEvent.X;
+            bool c2 = startO.Y != startEvent.Y;
+            bool c3 = endO.X != endEvent.X;
+            bool c4 = endO.Y != endEvent.Y;
 
             if (c1 && c2 && c3 && c4)
                 return;
             else
             {
                 bool top = true, left = true, right = true, bottom = true;
-                for (int j =  startEvent.i; j >= endEvent.i; j--)
+                for (int j = (int) startEvent.Y; j >= endEvent.Y; j--)
                 {
-                    for (int i = startEvent.j; i <= endEvent.j; i++)
+                    for (int i = (int)startEvent.X; i <= endEvent.X; i++)
                     {
-                        if (startEvent.j == endEvent.j || startEvent.i == endEvent.i)
+                        if (startEvent.X == endEvent.X || startEvent.Y == endEvent.Y)
                         {
                             hasEvent = false;
                             return;
                         }
 
-                        if (bottom && j == startEvent.i && !c2)
+                        if (bottom && j == startEvent.Y && !c2)
                         {
                             if (updated[j, i] == true)
                             {
                                 bottom = false;
-                                i = endEvent.j - 1;
+                                i = (int)endEvent.X - 1;
                             }
-                            else if (i == endEvent.j)
-                                startEvent.i -= 1;
+                            else if (i == endEvent.X)
+                                startEvent.Y -= 1;
 
                         }
-                        else if (top && j == endEvent.i && !c4)
+                        else if (top && j == endEvent.Y && !c4)
                         {
                             if (updated[j, i] == true)
                             {
                                 top = false;
-                                i =  endEvent.j - 1;
+                                i = (int) endEvent.X - 1;
                             }
-                            else if (i == endEvent.j)
+                            else if (i == endEvent.X)
                             {
-                                endEvent.i += 1;
-                                j =  endEvent.i + 1;
+                                endEvent.Y += 1;
+                                j = (int) endEvent.Y + 1;
                             }
                         }
 
-                        if (left && i == startEvent.j && !c1)
+                        if (left && i == startEvent.X && !c1)
                         {
                             if (updated[j, i] == true)
                                 left = false;
-                            else if (j == endEvent.i)
+                            else if (j == endEvent.Y)
                             {
-                                startEvent.j += 1;
-                                j =  startEvent.i + 1;
+                                startEvent.X += 1;
+                                j = (int) startEvent.Y + 1;
                             }
                         }
-                        else if (right && i == endEvent.j && !c3)
+                        else if (right && i == endEvent.X && !c3)
                         {
                             if (updated[j, i] == true)
                                 right = false;
-                            else if (j == endEvent.i)
+                            else if (j == endEvent.Y)
                             {
-                                endEvent.j -= 1;
-                                j =  startEvent.i + 1;
+                                endEvent.X -= 1;
+                                j = (int) startEvent.Y + 1;
                             }
                         }
                     }
@@ -297,44 +278,8 @@ namespace GridTesting
             */}
         }
 
-        public void setMarkerRadius (int i, int j, int radius)
-        {
-            if (hasEvent == false)  //:Makes a new event in the block if one does not exist already
-            {
-                hasEvent = true;
-                startEvent = new Point(i, j);
-                endEvent = new Point(i, j);
-
-                markers.Add(new Point(i, j));
-            }
-            else                    //:Adds to an existing event in a block (if needed)
-            {
-                if (i >= startEvent.i) startEvent.i = i;
-                if (i <= endEvent.i) endEvent.i = i;
-                if (j <= startEvent.j) startEvent.j = j;
-                if (j >= endEvent.j) endEvent.j = j;
-
-                markers.Add(new Point(i, j));
-            }
-
-            for (int t = radius; t > 0; t--)
-            {
-                setMarker(i, j, -t, -t);
-                setMarker(i, j, -t, t);
-                setMarker(i, j, t, -t);
-                setMarker(i, j, t, t);
-                //setMarker(i, j, radius, 0);
-                //setMarker(i, j, -radius, 0);
-                //setMarker(i, j, 0, radius);
-                //setMarker(i, j, 0, -radius);
-            }
-            //setMarker(i, j, 0, 0);
-        }
-
         public bool marked;//remove later
-        public bool altMarked;
-        List<Point> markers;
-        public void Draw (int x, int y, int i, int j, int iDist, int jDist, SpriteBatch _spriteBatch)
+        public void Draw (int x, int y, int i, int j, int iDist, int jDist, SpriteBatch _spriteBatch)//REDONE
         {
             for (int iiter = i; iiter < i + iDist; iiter ++)
             {
@@ -347,55 +292,21 @@ namespace GridTesting
                     switch (grid [iiter, jiter])
                     {
                         case 0:
-                            color = Color.White;
+                            if (marked == true) color = Color.Red;
+                            else color = Color.White;
                             break;
-                        case 11:
+                        case 1:
                             color = Color.Brown;
                             break;
-                        case 10:
+                        case 2:
                             color = Color.Tan;
                             break;
-                        case 5:
+                        case 3:
                             color = Color.Blue;
                             break;
                     }
 
                     _spriteBatch.Draw (Game1.whiteRectangle, pixel, color);
-                }
-            }
-
-            if (marked && hasEvent)
-            {
-                Rectangle bottom = new Rectangle(x + ( startEvent.j * 5) + 2, y + ( startEvent.i * 5) + 3, ( endEvent.j -  startEvent.j) * 5 + 3, 2);
-                Rectangle left = new Rectangle(x + (startEvent.j * 5), y + (endEvent.i * 5), 2, (startEvent.i - endEvent.i) * 5 + 5);
-                Rectangle top = new Rectangle(x + (startEvent.j * 5) + 2, y + (endEvent.i * 5), (endEvent.j - startEvent.j) * 5 + 3, 2);
-                Rectangle right = new Rectangle(x + (endEvent.j * 5) + 3, y + (endEvent.i * 5), 2, (startEvent.i - endEvent.i) * 5 + 5);
-
-                Rectangle startB = new Rectangle(x + (startEvent.j * 5), y + (startEvent.i * 5) + 2, 3, 3);
-                Rectangle endB = new Rectangle(x + (endEvent.j * 5) + 2, y + (endEvent.i * 5), 3, 3);
-
-                _spriteBatch.Draw(Game1.whiteRectangle, bottom, Color.Red);
-                
-                _spriteBatch.Draw(Game1.whiteRectangle, left, Color.Red);
-                
-                _spriteBatch.Draw(Game1.whiteRectangle, top, Color.Red);
-                
-                _spriteBatch.Draw(Game1.whiteRectangle, right, Color.Red);
-
-                _spriteBatch.Draw(Game1.whiteRectangle, startB, Color.LightGreen);
-
-                _spriteBatch.Draw(Game1.whiteRectangle, endB, Color.DarkGreen);
-            }
-
-            if (altMarked)
-            {
-                for (int t = 0; t < markers.Count; t++)
-                {
-                    Rectangle pixel = new Rectangle((x + markers[t].j * 5) + 1, y + (markers[t].i * 5) + 1, 3, 3);
-
-                    Color color = Color.Purple;
-
-                    _spriteBatch.Draw(Game1.whiteRectangle, pixel, color);
                 }
             }
         }
@@ -404,15 +315,14 @@ namespace GridTesting
          * This method strictly updates a pixel at the given (i, j) coordinate. It does not 
          * check to see if that pixel was updated already however.
          */
-        /*public void updatePixel(int i, int j)//!!Maybe change the update policy from above to actually allow this to be the only place which updates pixels
+        public void updatePixel(int i, int j)//!!Maybe change the update policy from above to actually allow this to be the only place which updates pixels //REDONE
         {
             if (i >= 8 || i < 0) throw new Exception("i: " + i + ", was out of bounds in updatePixel");
             if (j >= 8 || j < 0) throw new Exception("j: " + j + ", was out of bounds in updatePixel");
 
-            
             switch (grid[i, j])
             {
-                case Pixel.AIR:
+                case 0:
                     //Air
                     {
                         updated[i, j] = false;
@@ -631,7 +541,7 @@ namespace GridTesting
                     }
                     break;
             }
-        }*/
+        }
 
         /*
          * This method takes an (i, j) coord on the graph and returns a pixel at the 
@@ -640,7 +550,7 @@ namespace GridTesting
          * i and j are 0 to 7
          * iDist and jDist are -8 to 8
          */
-        public int getPixel(int i, int j, int iDist, int jDist)
+        public int getPixel(int i, int j, int iDist, int jDist)//REDONE
         {
             if (i >= 8 || i < 0) throw new Exception ("i: " + i + ", was out of bounds in get");
             if (j >= 8 || j < 0) throw new Exception ("j: " + j + ", was out of bounds in get");
@@ -662,7 +572,7 @@ namespace GridTesting
             else c2 = -jDist <= j;
 
             if (c1 && c2)       //Everything is within the block
-                return this.grid[i + iDist, j + jDist];
+                return grid[i + iDist, j + jDist];
             else if (!c1 && !c2) //In a outside block digonally
             {
                 if (d1 && d2)       //:Bottom right block
@@ -690,8 +600,13 @@ namespace GridTesting
             }
         }
 
-        public void setPixel (int i, int j, int iDist, int jDist, int pixel, int data)
+        bool hasEvent;
+        Vector2 startEvent, endEvent;
+        public void setPixel (int i, int j, int iDist, int jDist, int pixel, int newData)//REDONE
         {
+            if (i >= 8 || i < 0) throw new Exception("i: " + i + ", was out of bounds in set");
+            if (j >= 8 || j < 0) throw new Exception("j: " + j + ", was out of bounds in set");
+
             bool d1;    //true if positive (down) direction
             bool d2;    //true if positive (tight) direction
             bool c1;    //true if the target pixel is within the block vertically
@@ -708,310 +623,61 @@ namespace GridTesting
 
             if (c1 && c2)       //Everything is within the block
             {
-                this.grid [i + iDist, j + jDist] = pixel;
-                this.data [i + iDist, j + jDist] = data;
+                grid [i + iDist, j + jDist] = pixel;
+                data [i + iDist, j + jDist] = newData;
                 
-                if (d2 && (!d1 || iDist == 0) && !(iDist == 0 && jDist == 0)) this.updated [i + iDist, j + jDist] = true;
-
-                //setMarker(i, j, 0, 0);
-                //setMarker(i, j, iDist, jDist);
-                if (iDist != 0 || jDist != 0) setMarkerRadius (i, j, 1);
-                setMarkerRadius (i + iDist, j + jDist, 1);
-            }
-            else if (!c1 && !c2) //In a outside block digonally
-            {
-                if (d1 && d2)       //:Bottom right block
-                    cornerBR.setPixel (0, 0, (iDist - 1) - (7 - i), (jDist - 1) - (7 - j), pixel, data);
-                else if (d2)        //:Top right block
-                    cornerTR.setPixel (7, 0, (iDist + 1) + i, (jDist - 1) - (7 - j), pixel, data);
-                else if (d1)        //:Bottom left block
-                    cornerBL.setPixel (0, 7, (iDist - 1) - (7 - i), (jDist + 1) + j, pixel, data);
-                else                //:Top left block
-                    cornerTL.setPixel (7, 7, (iDist + 1) + i, (jDist + 1) + j, pixel, data);
-            }
-            else if (c1)        //In a outside block vertically
-            {
-                if (d2)             //:Right block
-                    right.setPixel (i, 0, iDist, (jDist - 1) - (7 - j), pixel, data);
-                else                //:Left block
-                    left.setPixel (i, 7, iDist, (jDist + 1) + j, pixel, data);
-            }
-            else                //In a outside block horizontally
-            {
-                if (d1)             //:Bottom block
-                    bottom.setPixel (0, j, (iDist - 1) - (7 - i), jDist, pixel, data);
-                else                //:Top block
-                    top.setPixel (7, j, (iDist + 1) + i, jDist, pixel, data);
-            }
-        }
-
-        public int getData(int i, int j, int iDist, int jDist)
-        {
-            if (i >= 8 || i < 0) throw new Exception("i: " + i + ", was out of bounds in get");
-            if (j >= 8 || j < 0) throw new Exception("j: " + j + ", was out of bounds in get");
-            if (iDist >= 16 || iDist < -16) throw new Exception("iDist: " + iDist + ", was suggestively out of bounds in get");
-            if (jDist >= 16 || jDist < -16) throw new Exception("jDist: " + jDist + ", was suggestively out of bounds in get");
-
-            bool d1;    //true if positive (down) direction
-            bool d2;    //true if positive (right) direction
-            bool c1;    //true if the target pixel is within the block vertically
-            bool c2;    //true if the target pixel is within the block horizontally
-
-            d1 = iDist >= 0;
-            d2 = jDist >= 0;
-
-            if (d1) c1 = iDist <= 7 - i;
-            else c1 = -iDist <= i;
-
-            if (d2) c2 = jDist <= 7 - j;
-            else c2 = -jDist <= j;
-
-            if (c1 && c2)       //Everything is within the block
-                return data[i + iDist, j + jDist];
-            else if (!c1 && !c2) //In a outside block digonally
-            {
-                if (d1 && d2)       //:Bottom right block
-                    return cornerBR.getPixel(0, 0, (iDist - 1) - (7 - i), (jDist - 1) - (7 - j));
-                else if (d2)        //:Top right block
-                    return cornerTR.getPixel(7, 0, (iDist + 1) + i, (jDist - 1) - (7 - j));
-                else if (d1)        //:Bottom left block
-                    return cornerBL.getPixel(0, 7, (iDist - 1) - (7 - i), (jDist + 1) + j);
-                else                //:Top left block
-                    return cornerTL.getPixel(7, 7, (iDist + 1) + i, (jDist + 1) + j);
-            }
-            else if (c1)        //In a outside block vertically
-            {
-                if (d2)             //:Right block
-                    return right.getPixel(i, 0, iDist, (jDist - 1) - (7 - j));
-                else                //:Left block
-                    return left.getPixel(i, 7, iDist, (jDist + 1) + j);
-            }
-            else                //In a outside block horizontally
-            {
-                if (d1)             //:Bottom block
-                    return bottom.getPixel(0, j, (iDist - 1) - (7 - i), jDist);
-                else                //:Top block
-                    return top.getPixel(7, j, (iDist + 1) + i, jDist);
-            }
-        }
-
-        public void setMarker(int i, int j, int iDist, int jDist)
-        {
-            bool d1;    //true if positive (down) direction
-            bool d2;    //true if positive (right) direction
-            bool c1;    //true if the target pixel is within the block vertically
-            bool c2;    //true if the target pixel is within the block horizontally
-
-            d1 = iDist >= 0;
-            d2 = jDist >= 0;
-
-            if (d1) c1 = iDist <= 7 - i;
-            else c1 = -iDist <= i;
-
-            if (d2) c2 = jDist <= 7 - j;
-            else c2 = -jDist <= j;
-
-            if (c1 && c2)       //Everything is within the block
-            {
+                updated [i + iDist, j + jDist] = true;
+                //MOVE THIS
                 if (hasEvent == false)  //:Makes a new event in the block if one does not exist already
                 {
                     hasEvent = true;
-                    startEvent = new Point(i + iDist, j + jDist);//0, 7 initially
-                    endEvent = new Point(i + iDist, j + jDist);//7, 0 initially
-
-                    markers.Add(new Point(i + iDist, j + jDist));
+                    startEvent = endEvent = new Vector2 (i + iDist, j + jDist);
                 }
                 else                    //:Adds to an existing event in a block (if needed)
                 {
-                    if (i + iDist >= startEvent.i) startEvent.i = i + iDist;
-                    if (i + iDist <= endEvent.i) endEvent.i = i + iDist;
-                    if (j + jDist <= startEvent.j) startEvent.j = j + jDist;
-                    if (j + jDist >= endEvent.j) endEvent.j = j + jDist;
+                    bool s1 = i + iDist > startEvent.Y;
+                    bool s2 = i + iDist < endEvent.Y;
+                    bool s3 = j + jDist < startEvent.X;
+                    bool s4 = j + jDist > endEvent.X;
 
-                    markers.Add(new Point(i + iDist, j + jDist));
+                    if (s1 || s2 || s3 || s4)
+                    {
+                        if (s1)
+                            startEvent.Y = i + iDist;
+                        else if (s2)
+                            endEvent.Y = i + iDist;
+                        if (s3)
+                            startEvent.X = j + jDist;
+                        else if (s4)
+                            endEvent.X = j + jDist;
+                    }
                 }
             }
             else if (!c1 && !c2) //In a outside block digonally
             {
                 if (d1 && d2)       //:Bottom right block
-                    cornerBR.setMarker(0, 0, (iDist - 1) - (7 - i), (jDist - 1) - (7 - j));
+                    cornerBR.setPixel (0, 0, (iDist - 1) - (7 - i), (jDist - 1) - (7 - j), pixel, newData);
                 else if (d2)        //:Top right block
-                    cornerTR.setMarker(7, 0, (iDist + 1) + i, (jDist - 1) - (7 - j));
+                    cornerTR.setPixel (7, 0, (iDist + 1) + i, (jDist - 1) - (7 - j), pixel, newData);
                 else if (d1)        //:Bottom left block
-                    cornerBL.setMarker(0, 7, (iDist - 1) - (7 - i), (jDist + 1) + j);
+                    cornerBL.setPixel (0, 7, (iDist - 1) - (7 - i), (jDist + 1) + j, pixel, newData);
                 else                //:Top left block
-                    cornerTL.setMarker(7, 7, (iDist + 1) + i, (jDist + 1) + j);
+                    cornerTL.setPixel (7, 7, (iDist + 1) + i, (jDist + 1) + j, pixel, newData);
             }
             else if (c1)        //In a outside block vertically
             {
                 if (d2)             //:Right block
-                    right.setMarker(i, 0, iDist, (jDist - 1) - (7 - j));//(jDist - 1) - (7 - j)Also aplied to corners above
+                    right.setPixel (i, 0, iDist, (jDist - 1) - (7 - j), pixel, newData);
                 else                //:Left block
-                    left.setMarker(i, 7, iDist, (jDist + 1) + j);
+                    left.setPixel (i, 7, iDist, (jDist + 1) + j, pixel, newData);
             }
             else                //In a outside block horizontally
             {
                 if (d1)             //:Bottom block
-                    bottom.setMarker(0, j, (iDist - 1) - (7 - i), jDist);//(iDist - 1) - (7 - i)
+                    bottom.setPixel (0, j, (iDist - 1) - (7 - i), jDist, pixel, newData);
                 else                //:Top block
-                    top.setMarker(7, j, (iDist + 1) + i, jDist);
+                    top.setPixel (7, j, (iDist + 1) + i, jDist, pixel, newData);
             }
-        }
-
-        public void setUpdated(int i, int j, int iDist, int jDist, bool updated)
-        {
-            bool d1;    //true if positive (down) direction
-            bool d2;    //true if positive (tight) direction
-            bool c1;    //true if the target pixel is within the block vertically
-            bool c2;    //true if the target pixel is within the block horizontally
-
-            d1 = iDist >= 0;
-            d2 = jDist >= 0;
-
-            if (d1) c1 = iDist <= 7 - i;
-            else c1 = -iDist <= i;
-
-            if (d2) c2 = jDist <= 7 - j;
-            else c2 = -jDist <= j;
-
-            if (c1 && c2)       //Everything is within the block
-            {
-                this.updated[i + iDist, j + jDist] = updated;
-                //if (updated == true) this.setThisMarker(i, j, 2);
-            }
-            else if (!c1 && !c2) //In a outside block digonally
-            {
-                if (d1 && d2)       //:Bottom right block
-                    cornerBR.setUpdated(0, 0, (iDist - 1) - (7 - i), (jDist - 1) - (7 - j), updated);
-                else if (d2)        //:Top right block
-                    cornerTR.setUpdated(7, 0, (iDist + 1) + i, (jDist - 1) - (7 - j), updated);
-                else if (d1)        //:Bottom left block
-                    cornerBL.setUpdated(0, 7, (iDist - 1) - (7 - i), (jDist + 1) + j, updated);
-                else                //:Top left block
-                    cornerTL.setUpdated(7, 7, (iDist + 1) + i, (jDist + 1) + j, updated);
-            }
-            else if (c1)        //In a outside block vertically
-            {
-                if (d2)             //:Right block
-                    right.setUpdated(i, 0, iDist, (jDist - 1) - (7 - j), updated);
-                else                //:Left block
-                    left.setUpdated(i, 7, iDist, (jDist + 1) + j, updated);
-            }
-            else                //In a outside block horizontally
-            {
-                if (d1)             //:Bottom block
-                    bottom.setUpdated(0, j, (iDist - 1) - (7 - i), jDist, updated);
-                else                //:Top block
-                    top.setUpdated(7, j, (iDist + 1) + i, jDist, updated);
-            }
-        }
-
-        public int getThisPixel (int i, int j)
-        {
-            return this.grid[i, j];
-        }
-
-        public int getThisData (int i, int j)
-        {
-            return this.data[i, j];
-        }
-
-        public int getTopPixel (int i, int j)
-        {
-            return this.getPixel(i, j, -1, 0);
-        }
-
-        public int getLeftPixel(int i, int j)
-        {
-            return this.getPixel(i, j, 0, -1);
-        }
-
-        public int getRightPixel(int i, int j)
-        {
-            return this.getPixel(i, j, 0, 1);
-        }
-
-        public int getBottomPixel(int i, int j)
-        {
-            return this.getPixel(i, j, 1, 0);
-        }
-
-        public int getTopLeftPixel(int i, int j)
-        {
-            return this.getPixel(i, j, -1, -1);
-        }
-
-        public int getTopRightPixel(int i, int j)
-        {
-            return this.getPixel(i, j, -1, 1);
-        }
-
-        public int getBottomLeftPixel(int i, int j)
-        {
-            return this.getPixel(i, j, 1, -1);
-        }
-
-        public int getBottomRightPixel(int i, int j)
-        {
-            return this.getPixel(i, j, 1, 1);
-        }
-
-        public void setThisPixel (int i, int j, int pixel, int data)
-        {
-            this.grid[i, j] = pixel;
-            this.data[i, j] = data;
-            //updated[i, j] = true;
-            setMarkerRadius (i, j, 1);
-        }
-
-        public void setTopPixel(int i, int j, int pixel, int data)
-        {
-            this.setPixel(i, j, -1, 0, pixel, data);
-        }
-
-        public void setLeftPixel(int i, int j, int pixel, int data)
-        {
-            this.setPixel(i, j, 0, -1, pixel, data);
-        }
-
-        public void setRightPixel(int i, int j, int pixel, int data)
-        {
-            this.setPixel(i, j, 0, 1, pixel, data);
-        }
-
-        public void setBottomPixel(int i, int j, int pixel, int data)
-        {
-            this.setPixel(i, j, 1, 0, pixel, data);
-        }
-
-        public void setTopLeftPixel(int i, int j, int pixel, int data)
-        {
-            this.setPixel(i, j, -1, -1, pixel, data);
-        }
-
-        public void setTopRightPixel(int i, int j, int pixel, int data)
-        {
-            this.setPixel(i, j, -1, 1, pixel, data);
-        }
-
-        public void setBottomLeftPixel(int i, int j, int pixel, int data)
-        {
-            this.setPixel(i, j, 1, -1, pixel, data);
-        }
-
-        public void setBottomRightPixel(int i, int j, int pixel, int data)
-        {
-            this.setPixel(i, j, 1, 1, pixel, data);
-        }
-    }
-
-    class Point
-    {
-        public int i, j;
-        public Point (int i, int j)
-        {
-            this.i = i;
-            this.j = j;
         }
     }
 }
