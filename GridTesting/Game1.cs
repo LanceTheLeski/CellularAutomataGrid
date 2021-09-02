@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using GridTesting.World;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -11,7 +12,10 @@ namespace GridTesting
 
         public static Texture2D whiteRectangle;
 
-        Chunk testChunk;
+        Chunk testChunk1;
+        //Chunk testChunk2;
+        //Chunk testChunk3;
+        //Chunk testChunk4;
 
         public Game1()
         {
@@ -20,8 +24,8 @@ namespace GridTesting
             IsMouseVisible = true;
 
             _graphics.IsFullScreen = false;
-            _graphics.PreferredBackBufferHeight = 768;
-            _graphics.PreferredBackBufferWidth = 1024;
+            _graphics.PreferredBackBufferHeight = 768 * 2 - 500;
+            _graphics.PreferredBackBufferWidth = 1024 + 200;
         }
 
         protected override void Initialize()
@@ -38,44 +42,44 @@ namespace GridTesting
             whiteRectangle = new Texture2D(GraphicsDevice, 1, 1);
             whiteRectangle.SetData(new[] { Color.White });
 
-            testChunk = new Chunk();
-            pause = false;
-            bpressed = spressed = false;
+            testChunk1 = new Chunk();
+            /*testChunk2 = new Chunk();
+            testChunk3 = new Chunk();
+            testChunk4 = new Chunk();
+
+            testChunk2.yoff = 640;
+
+            testChunk3.xoff = 640;
+
+            testChunk4.xoff = 640;
+            testChunk4.yoff = 640;
+
+            Chunk [] link4 = {null, null, testChunk2, testChunk3, null, null, null, testChunk4};
+            Chunk [] link3 = { null, testChunk1, null, testChunk4, null, null, testChunk3, null };
+            Chunk [] link2 = { testChunk1, null, testChunk4, null, null, testChunk2, null, null };
+            Chunk [] link1 = { testChunk2, testChunk3, null, null, testChunk1, null, null, null };
+
+            testChunk1.setLinkedChunks(link1);
+            testChunk2.setLinkedChunks(link2);
+            testChunk3.setLinkedChunks(link3);
+            testChunk4.setLinkedChunks(link4);*/
 
             // TODO: use this.Content to load your game content here
         }
 
-        bool pause;
-        bool bpressed, spressed;
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            if (Keyboard.GetState().IsKeyDown(Keys.Space) && spressed == false)
-            {
-                pause = !pause;
-                spressed = true;
-            }
-            else spressed = false;
+            testChunk1 = Controls.update(testChunk1);
+            /*tChunk3 = Controls.update(testChunk3);
+            testChunk4 = Controls.update(testChunk4);*/
 
-            if (Mouse.GetState().LeftButton == ButtonState.Pressed && bpressed == false)
-            {
-                if (Keyboard.GetState().IsKeyDown(Keys.W) && Keyboard.GetState().IsKeyDown(Keys.A)) testChunk.highlight(Mouse.GetState().X, Mouse.GetState().Y, -1, -1);
-                else if (Keyboard.GetState().IsKeyDown(Keys.W) && Keyboard.GetState().IsKeyDown(Keys.D)) testChunk.highlight(Mouse.GetState().X, Mouse.GetState().Y, -1, 1);
-                else if (Keyboard.GetState().IsKeyDown(Keys.A) && Keyboard.GetState().IsKeyDown(Keys.S)) testChunk.highlight(Mouse.GetState().X, Mouse.GetState().Y, 1, -1);
-                else if (Keyboard.GetState().IsKeyDown(Keys.S) && Keyboard.GetState().IsKeyDown(Keys.D)) testChunk.highlight(Mouse.GetState().X, Mouse.GetState().Y, 1, 1);
-                else if (Keyboard.GetState().IsKeyDown(Keys.W)) testChunk.highlight(Mouse.GetState().X, Mouse.GetState().Y, -1, 0);
-                else if (Keyboard.GetState().IsKeyDown(Keys.A)) testChunk.highlight(Mouse.GetState().X, Mouse.GetState().Y, 0, -1);
-                else if (Keyboard.GetState().IsKeyDown(Keys.S)) testChunk.highlight(Mouse.GetState().X, Mouse.GetState().Y, 1, 0);
-                else if (Keyboard.GetState().IsKeyDown(Keys.D)) testChunk.highlight(Mouse.GetState().X, Mouse.GetState().Y, 0, 1);
-                else testChunk.highlight(Mouse.GetState().X, Mouse.GetState().Y, 0, 0);
-
-                bpressed = true;
-            }
-            else bpressed = false;
-
-            if (!pause) testChunk.update();
+            ChunkManager.update(testChunk1);
+            //ChunkManager.update(testChunk2);
+            //ChunkManager.update(testChunk3);
+            //ChunkManager.update(testChunk4);
 
             base.Update(gameTime);
         }
@@ -84,7 +88,10 @@ namespace GridTesting
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            testChunk.Draw(_spriteBatch);
+            ChunkManager.Draw(testChunk1, _spriteBatch);
+            //ChunkManager.Draw(testChunk2, _spriteBatch);
+            //ChunkManager.Draw(testChunk3, _spriteBatch);
+            //ChunkManager.Draw(testChunk4, _spriteBatch);
 
             base.Draw(gameTime);
         }
